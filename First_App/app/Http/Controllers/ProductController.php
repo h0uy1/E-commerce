@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Cart;
 
 class ProductController extends Controller
 {
@@ -87,16 +88,19 @@ class ProductController extends Controller
 
     public function deleteProduct(Product $product){
         $oldpathName = $product->image;
+        $p_id = $product->id;
         $info = pathinfo($oldpathName);
         $fileName = $info['basename'];
         $path = getcwd();
-
+        $cartModel = new Cart();
         try{
+            $cartModel->deleteCart($p_id);
             if($product->delete()){
                 if (file_exists($path . '\assets\\'.$fileName)){
                     unlink($path . '\assets\\'.$fileName);
                 }
             }
+           
         }catch(Exception $e){
             throw $e;
         }

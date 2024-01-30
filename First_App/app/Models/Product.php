@@ -18,4 +18,5 @@ class Product extends Model
     public function searchProduct($name){
         return $this -> where('title','like','%'.$name.'%')->get();
     }
+
 }
