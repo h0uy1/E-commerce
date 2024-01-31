@@ -15,8 +15,13 @@ class Product extends Model
         return $this -> belongsTo(User::class,'user_id');
     }
 
-    public function searchProduct($name){
-        return $this -> where('title','like','%'.$name.'%')->get();
+    public function searchProduct($name,$page){
+        return $this -> where('title','like','%'.$name.'%')->paginate($page);
     }
 
+    public function getLatest($page)
+    {
+        return $this->orderBy('created_at', 'desc')->paginate($page);
+    }
+    
 }

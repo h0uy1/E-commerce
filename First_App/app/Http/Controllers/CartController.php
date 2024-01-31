@@ -6,6 +6,13 @@ use App\Models\Cart;
 use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Illuminate\Support\Facades\Log;
+use Mailgun\Mailgun;
+use Mailgun\HttpClient\HttpClientConfigurator;
+use App\Mail\CustomMail;
+use Illuminate\Support\Facades\Mail;
+use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
+use UnexpectedValueException;
 
 class CartController extends Controller
 {
@@ -109,15 +116,65 @@ class CartController extends Controller
     }
 
     public function handleWebhook(Request $request){
+
+
+        // # Instantiate the client with HttpClientConfigurator.
+        // $configurator = new HttpClientConfigurator();
+        // $configurator->setApiKey(env('MAILGUN_SECRET'));
+        // $mgClient = new Mailgun($configurator);
         
-        Log::error('Webhook request:', ['request' => $request->all()]);
+        // $domain = env('MAILGUN_DOMAIN');
+        
+        // # Make the call to the client.
+        // $result = $mgClient->messages()->send($domain, [
+        //     'from'    => 'E-commerce Domain <mailgun@' . $domain . '>',
+        //     'to'      => 'Baz <hywongtop12@gmail.com>',
+        //     'subject' => 'Hello',
+        //     'text'    => 'Testing some Mailgun awesomeness!',
+        //     'template'  => 'my-template', // Specify the Mailgun template name
+        //     'h:X-Mailgun-Variables' => json_encode([
+        //         'name' => 'John Doe', // Variables to be used in the template
+        //     ]),
+        // ]);
+        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $endpoint_secret = 'whsec_e7ed0a9ae1884a880bc145a251a86111e3d5f1dd092e1db5b52b7a0a444e5c12';
+        $payload = $request->getContent();
+        $sig_header = $request->header('Stripe-Signature');
+        $event = null;
+        try {
+            $event = Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch (UnexpectedValueException $e) {
+            // Invalid payload
+            Log::error('Invalid payload');
+            return response()->json(['error' => 'Invalid payload'], 400);
+        } catch (SignatureVerificationException $e) {
+            // Invalid signature
+            Log::error('Invalid signature');
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
 
-        // Pass the request data to the view
-        $requestData = [
-            'headers' => $request->header(),
-            'body' => $request->getContent(),
-        ];
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $paymentIntent = $event->data->object;
+                $name = $paymentIntent['customer_details']['name'];
+                $c_id = $paymentIntent['id'];
+                $products = $stripe->checkout->sessions->allLineItems($c_id)['data'];
 
-        return view('test', ["requestData" => $requestData]);
+                $total = 0;
+                foreach ($products as $item){
+                    $price = $item['amount_total'] / 100;
+                    $total = $total + $price;
+                }
+
+                Mail::to('wonghouyee@moneymatch.co')->send(new CustomMail($name,$products,$total));
+                
+                break;
+            default:
+                Log::info('Received unknown event type ' . $event->type);
+                return response()->json(['message' => 'Received unknown event type ' . $event->type]);
+        }
+
     }
 }

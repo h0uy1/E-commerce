@@ -1,6 +1,15 @@
 @extends('app')
 @section('register')
     <div class="container" >
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <h1>Register</h1>
         <form action="/register" method="post">
             @csrf

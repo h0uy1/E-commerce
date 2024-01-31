@@ -58,5 +58,6 @@ Route::middleware(['auth','is_admin'])->group(function () {
     Route::put('/edit/{product}',[ProductController::class,'editProduct']);
     Route::delete('/delete/{product}',[ProductController::class,'deleteProduct']);
     Route::get('/admin', [ProductController::class,'showAdmin']);
+    Route::get('/admin/latest', [ProductController::class,'showLatest']);
     Route::post('/admin', [ProductController::class,'search']);
 });
