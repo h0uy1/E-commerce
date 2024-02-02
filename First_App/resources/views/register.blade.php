@@ -1,6 +1,6 @@
 @extends('app')
 @section('register')
-    <div class="container" >
+    <div class="container" style="padding-top: 5rem" >
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>

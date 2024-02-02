@@ -92,7 +92,7 @@
         @yield('content')
     </main>
      
-    <div class="container" style="padding-top: 5rem">
+    <div class="" style="">
         @yield('register')
     </div>
    

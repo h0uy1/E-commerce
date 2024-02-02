@@ -117,25 +117,8 @@ class CartController extends Controller
 
     public function handleWebhook(Request $request){
 
-
-        // # Instantiate the client with HttpClientConfigurator.
-        // $configurator = new HttpClientConfigurator();
-        // $configurator->setApiKey(env('MAILGUN_SECRET'));
-        // $mgClient = new Mailgun($configurator);
-        
-        // $domain = env('MAILGUN_DOMAIN');
-        
-        // # Make the call to the client.
-        // $result = $mgClient->messages()->send($domain, [
-        //     'from'    => 'E-commerce Domain <mailgun@' . $domain . '>',
-        //     'to'      => 'Baz <hywongtop12@gmail.com>',
-        //     'subject' => 'Hello',
-        //     'text'    => 'Testing some Mailgun awesomeness!',
-        //     'template'  => 'my-template', // Specify the Mailgun template name
-        //     'h:X-Mailgun-Variables' => json_encode([
-        //         'name' => 'John Doe', // Variables to be used in the template
-        //     ]),
-        // ]);
+        $id = auth()->user()->id;
+        $cartModel = new Cart();
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
         $endpoint_secret = 'whsec_e7ed0a9ae1884a880bc145a251a86111e3d5f1dd092e1db5b52b7a0a444e5c12';
         $payload = $request->getContent();
@@ -157,6 +140,7 @@ class CartController extends Controller
 
         switch ($event->type) {
             case 'checkout.session.completed':
+                $cartModel->deleteUserCart($id);
                 $paymentIntent = $event->data->object;
                 $name = $paymentIntent['customer_details']['name'];
                 $c_id = $paymentIntent['id'];

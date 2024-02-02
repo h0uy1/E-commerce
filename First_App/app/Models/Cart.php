@@ -31,4 +31,8 @@ class Cart extends Model
     public function deleteCart($id){
         return $this -> where('product_id',$id)->delete();
     }
+
+    public function deleteUserCart($id){
+        return $this -> where('user_id',$id)->delete();
+    }
 }
