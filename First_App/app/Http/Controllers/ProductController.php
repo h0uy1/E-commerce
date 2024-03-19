@@ -110,11 +110,10 @@ class ProductController extends Controller
     public function search(Request $request){
         $name = $request->search;
         $productModel = new Product();
-        $products = $productModel->searchProduct($name,5);
         if (auth()->user()->is_admin ==2){
-            return view ('home',['products' => $products]);
+            return view ('home',['products' => $productModel->searchProduct($name,5)]);
         }else{
-            return view('user',['products' => $products]);
+            return view('user',['products' => $productModel->searchProduct($name)]);
         }
         
     }
@@ -124,7 +123,7 @@ class ProductController extends Controller
         if ($products->isEmpty()){
             return view('user',['products' => collect()]);
         }
-        return view('user',['products' => $products]);
+        return view('user',['products' => Product::paginate(9)]);
     }
 
     public function showAdmin(){

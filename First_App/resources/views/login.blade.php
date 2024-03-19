@@ -13,16 +13,17 @@
 @endif
 
 @section('register')
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+
 <div class="vh-100" style="background-color: #503C3C;">
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-xl-10">
@@ -36,7 +37,7 @@
                             <div class="card-body p-4 p-lg-5 text-black">
 
                                 <form action="/login" method="POST">
-
+                                    @csrf
                                     <div class="d-flex align-items-center mb-3 pb-1" style="justify-content:center">
                                         <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
                                         <span class="h1 fw-bold mb-0">
@@ -78,7 +79,7 @@
 
                                         <a href="#!" class="small text-muted">Terms of use.</a>
                                         <a href="#!" class="small text-muted">Privacy policy</a>
-                                    </form>
+                                </form>
 
                                 </div>
                             </div>

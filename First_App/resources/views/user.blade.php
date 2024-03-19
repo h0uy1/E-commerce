@@ -57,5 +57,5 @@
     </div>
   
   </main>
-
+  {{ $products->links() }}
 @endsection

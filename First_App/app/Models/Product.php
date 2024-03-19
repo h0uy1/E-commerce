@@ -15,7 +15,7 @@ class Product extends Model
         return $this -> belongsTo(User::class,'user_id');
     }
 
-    public function searchProduct($name,$page){
+    public function searchProduct($name,$page = null){
         return $this -> where('title','like','%'.$name.'%')->paginate($page);
     }
 
